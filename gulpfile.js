@@ -6,6 +6,7 @@ var uglify = require('gulp-uglify');
 var utilities = require('gulp-util');
 var del = require('del');
 var jshint = require('gulp-jshint');
+var babelify = require("babelify");
 var lib = require('bower-files')({
   "overrides":{
     "bootstrap" : {
@@ -34,10 +35,13 @@ gulp.task('concatInterface', function() {
 });
 
 gulp.task('jsBrowserify', ['concatInterface'], function() {
-  return browserify({ entries: ['./tmp/allConcat.js'] })
+  return browserify({ entries: ['./tmp/allConcat.js']})
+    .transform(babelify.configure({
+      presets: ["es2015"]
+    }))
     .bundle()
     .pipe(source('app.js'))
-    .pipe(gulp.dest('./build/js'));
+    .pipe(gulp.dest('./build/js'))
 });
 
 gulp.task("minifyScripts", ["jsBrowserify"], function(){
@@ -74,7 +78,7 @@ gulp.task('serve', function() {
       index: "index.html"
     }
   });
-  
+
   gulp.watch(['js/*.js'], ['jsBuild']);
   gulp.watch(['bower.json'], ['bowerBuild']);
  });
